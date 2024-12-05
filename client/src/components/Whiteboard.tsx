@@ -200,6 +200,7 @@ export const Whiteboard: React.FC = () => {
     setIsDrawing(false);
   };
 
+  // Function to save the current drawing
   const saveDrawing = async () => {
     try {
       await axios.post(`${SOCKET_SERVER}/save`, {
@@ -213,6 +214,7 @@ export const Whiteboard: React.FC = () => {
     }
   };
 
+  // Function to load a saved drawing
   const loadDrawing = async () => {
     try {
       const response = await axios.get(`${SOCKET_SERVER}/load/${drawingName}`);
