@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import io from "socket.io-client";
 import axios from "axios";
 
-const SOCKET_SERVER = "http://192.168.1.74:5001";
+const SOCKET_SERVER = "http://192.168.1.84:5001";
 
 interface Point {
   x: number;
@@ -160,7 +160,7 @@ export const Whiteboard: React.FC = () => {
 
   const redo = () => {
     console.log("Redo function called");
-    if (currentHistoryIndex <= (drawingHistory.length - 1)) {
+    if (currentHistoryIndex <= drawingHistory.length - 1) {
       const newIndex = currentHistoryIndex + 1;
       console.log("New index for redo:", newIndex);
       setCurrentHistoryIndex(newIndex);
@@ -168,14 +168,17 @@ export const Whiteboard: React.FC = () => {
       socketRef.current.emit("redo", newIndex);
       socketRef.current.emit("requestHistory");
     } else {
-      console.log("Redo not possible, currentHistoryIndex:", currentHistoryIndex);
+      console.log(
+        "Redo not possible, currentHistoryIndex:",
+        currentHistoryIndex
+      );
     }
   };
 
   const clearCanvas = () => {
     const ctx = contextRef.current;
     const canvas = canvasRef.current;
-    
+
     if (!ctx || !canvas) return;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -201,7 +204,7 @@ export const Whiteboard: React.FC = () => {
     try {
       const response = await axios.get(`${SOCKET_SERVER}/load/${drawingName}`);
       const loadedDrawing = response.data;
-      
+
       setDrawingHistory(loadedDrawing);
       setCurrentHistoryIndex(loadedDrawing.length - 1);
       redrawCanvas(loadedDrawing, loadedDrawing.length - 1);
@@ -230,13 +233,15 @@ export const Whiteboard: React.FC = () => {
         <button onClick={undo} disabled={currentHistoryIndex < 0}>
           Undo
         </button>
-        <button
-          onClick={redo}
-          disabled={cannotRedo}
-        >
+        <button onClick={redo} disabled={cannotRedo}>
           Redo
         </button>
-        <button onClick={clearCanvas} disabled={currentHistoryIndex === -1}>Clear</button>
+        <button
+          onClick={() => clearCanvas()}
+          disabled={currentHistoryIndex === -1}
+        >
+          Clear
+        </button>
         <input
           type="text"
           placeholder="Drawing name"

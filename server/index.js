@@ -59,8 +59,10 @@ io.on("connection", (socket) => {
   });
 
   socket.on("clear", () => {
-    drawingHistory.length = 0;
-    io.emit("clear");
+    if (drawingHistory.length > 0) {
+      drawingHistory.length = 0;
+      io.emit("clear");
+    }
   });
 
   socket.on("disconnect", () => {
