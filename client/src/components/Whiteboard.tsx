@@ -189,10 +189,20 @@ export const Whiteboard: React.FC = () => {
 
   const saveDrawing = async () => {
     try {
-      await axios.post(`${SOCKET_SERVER}/save`, {
-        name: drawingName,
-        drawing: drawingHistory,
-      });
+      const canvas = canvasRef.current;
+      if (canvas) {
+        const dataURL = canvas.toDataURL("image/png");
+        await axios.post(`${SOCKET_SERVER}/save`, {
+          name: drawingName,
+          drawing: drawingHistory,
+          dataURL,
+        });
+      } else {
+        await axios.post(`${SOCKET_SERVER}/save`, {
+          name: drawingName,
+          drawing: drawingHistory,
+        });
+      }
       alert("Drawing saved successfully");
     } catch (error) {
       console.error("Error saving drawing:", error);

@@ -9,7 +9,7 @@ const path = require("path");
 
 const app = express();
 app.use(cors());
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: "50mb" }));
 
 const server = http.createServer(app);
 const io = socketIo(server, {
@@ -78,11 +78,20 @@ if (!fs.existsSync(drawingsDir)) {
 
 // Save drawing endpoint
 app.post("/save", (req, res) => {
-  const { name, drawing } = req.body;
+  const { name, drawing, dataURL } = req.body;
   fs.writeFileSync(
     path.join(drawingsDir, `${name}.json`),
     JSON.stringify(drawing)
   );
+
+  if (dataURL) {
+    const base64Data = dataURL.replace(/^data:image\/png;base64,/, "");
+    fs.writeFileSync(
+      path.join(drawingsDir, `${name}.png`),
+      base64Data,
+      "base64"
+    );
+  }
   res.status(200).send("Drawing saved");
 });
 
