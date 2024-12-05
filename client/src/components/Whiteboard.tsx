@@ -60,6 +60,7 @@ export const Whiteboard: React.FC = () => {
     return () => socketRef.current.disconnect();
   }, []);
 
+  // Function to draw points on the canvas
   const drawPoints = (ctx: CanvasRenderingContext2D, points: Point[]) => {
     if (points.length < 2) return;
 
@@ -75,6 +76,7 @@ export const Whiteboard: React.FC = () => {
     ctx.stroke();
   };
 
+  // Function to redraw the canvas based on the drawing history
   const redrawCanvas = (
     history: Point[][] = drawingHistory,
     index: number = currentHistoryIndex
@@ -92,6 +94,7 @@ export const Whiteboard: React.FC = () => {
     }
   };
 
+  // Function to start drawing on the canvas
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
     setIsDrawing(true);
     const canvas = canvasRef.current;
@@ -113,6 +116,7 @@ export const Whiteboard: React.FC = () => {
     redrawCanvas();
   };
 
+  // Function to draw on the canvas as the mouse moves
   const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
     if (!isDrawing) return;
 
@@ -138,6 +142,7 @@ export const Whiteboard: React.FC = () => {
     }
   };
 
+  // Function to stop drawing on the canvas
   const stopDrawing = () => {
     if (isDrawing && currentPathRef.current.length > 0) {
       const newPath = [...currentPathRef.current];
@@ -148,6 +153,7 @@ export const Whiteboard: React.FC = () => {
     currentPathRef.current = [];
   };
 
+  // Function to undo the last drawing action
   const undo = () => {
     if (currentHistoryIndex >= 0) {
       const newIndex = currentHistoryIndex - 1;
@@ -158,13 +164,11 @@ export const Whiteboard: React.FC = () => {
     }
   };
 
+  // Function to redo the last undone drawing action
   const redo = () => {
-    console.log("Redo function called");
-    if (currentHistoryIndex <= drawingHistory.length - 1) {
+    if (currentHistoryIndex <= (drawingHistory.length - 1)) {
       const newIndex = currentHistoryIndex + 1;
-      console.log("New index for redo:", newIndex);
       setCurrentHistoryIndex(newIndex);
-      // redrawCanvas(drawingHistory, newIndex);
       socketRef.current.emit("redo", newIndex);
       socketRef.current.emit("requestHistory");
     } else {
@@ -175,16 +179,25 @@ export const Whiteboard: React.FC = () => {
     }
   };
 
+  // Function to clear the canvas
   const clearCanvas = () => {
     const ctx = contextRef.current;
     const canvas = canvasRef.current;
 
     if (!ctx || !canvas) return;
 
+    // Clear the canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Reset drawing history and index
     setDrawingHistory([]);
     setCurrentHistoryIndex(-1);
+
+    // Emit clear event to the server
     socketRef.current.emit("clear");
+
+    // Reset any other states or variables related to drawing
+    setIsDrawing(false);
   };
 
   const saveDrawing = async () => {
